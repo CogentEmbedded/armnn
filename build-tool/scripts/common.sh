@@ -40,10 +40,8 @@ elif [ "$TARGET_ARCH" == "aarch64" ]; then
   fi
 fi
 
-AARCH64_COMPILER_FLAGS+="CC=/usr/bin/aarch64-linux-gnu-gcc CXX=/usr/bin/aarch64-linux-gnu-g++ "
-if [ "$HOST_ARCH" == "arm64" ]; then
-  AARCH64_COMPILER_FLAGS+="CC=/usr/bin/clang CXX=/usr/bin/clang++ "
-fi
+SDK_ENV_FILE=$PSDKL_PATH/linux-devkit/environment-setup-$PSDKL_COMPILER
+AARCH64_COMPILER_FLAGS=
 
 # NDK
 NDK_VERSION=26b

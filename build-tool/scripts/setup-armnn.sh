@@ -76,6 +76,7 @@ download_protobuf()
 
 build_protobuf()
 {
+  (
   local native_build=$1
   local build_dir="$PROTOBUF_BUILD_TARGET"
   local cmake_flags=""
@@ -86,6 +87,8 @@ build_protobuf()
     mkdir -p "$PROTOBUF_BUILD_TARGET"
     additional_cmds+="--with-protoc=$PROTOCOL_COMPILER_HOST "
     if [ "$TARGET_ARCH" == "aarch64" ]; then
+      set +o nounset
+      source $SDK_ENV_FILE
       cmake_flags+="$AARCH64_COMPILER_FLAGS"
       additional_cmds+="--host=aarch64-linux "
     fi
@@ -129,6 +132,7 @@ build_protobuf()
   fi
 
   echo -e "\n***** Protobuf built for $target_arch ***** "
+  )
 }
 
 download_flatbuffers()
@@ -141,6 +145,7 @@ download_flatbuffers()
 
 build_flatbuffers()
 {
+  (
   local native_build=$1
   local build_dir="$FLATBUFFERS_BUILD_TARGET"
   local target_arch="$TARGET_ARCH"
@@ -150,6 +155,8 @@ build_flatbuffers()
   if [ "$native_build" -eq 0 ]; then
     mkdir -p "$FLATBUFFERS_BUILD_TARGET"
     if [ "$TARGET_ARCH" == "aarch64" ]; then
+      set +o nounset
+      source $SDK_ENV_FILE
       cmake_flags+="$AARCH64_COMPILER_FLAGS"
     fi
     if [ "$TARGET_ARCH" == "android64" ]; then
@@ -160,6 +167,8 @@ build_flatbuffers()
     mkdir -p "$FLATBUFFERS_BUILD_HOST"
     build_dir="$FLATBUFFERS_BUILD_HOST"
     if [ "$os_darwin" -eq 1 ]; then
+      set +o nounset
+      source $SDK_ENV_FILE
       cmake_flags+="$AARCH64_COMPILER_FLAGS"
     fi
   fi
@@ -194,6 +203,7 @@ build_flatbuffers()
   make all install -j "$NUM_THREADS"
 
   echo -e "\n***** Built flatbuffers for $target_arch *****"
+  )
 }
 
 download_tensorflow()

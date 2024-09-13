@@ -39,6 +39,10 @@ fi
 
 build_acl()
 {
+  (
+  set +o nounset
+  source $SDK_ENV_FILE
+
   cd "$ACL_SRC"
 
   # $acl_scons_params are additional options provided by the user and will overwrite any previously defined args
@@ -102,6 +106,7 @@ build_acl()
         "$acl_arch" \
         "$acl_params" \
         build_dir="$ACL_BUILD_TARGET" \
+        install_dir="$ACL_BUILD_TARGET/install" \
         "$extra_cxx_flags" \
         -j "$NUM_THREADS"
   fi
@@ -109,10 +114,14 @@ build_acl()
   echo -e "\n***** Built ACL for $TARGET_ARCH *****"
 
   return 0
+  )
 }
 
 build_armnn()
-{
+{ (
+  set +o nounset
+  source $SDK_ENV_FILE
+
   if [ "$flag_clean" -eq 1 ]; then
     echo -e "\n***** Clean flag detected: removing existing Arm NN build *****"
     rm -rf "$ARMNN_BUILD_TARGET"
@@ -163,7 +172,7 @@ build_armnn()
   fi
 
   eval "$compile_flags" \
-  cmake "$android_cmake_args" \
+  /usr/bin/cmake "$android_cmake_args" \
         "$linker_cmake_args" \
         "$warn_flags" \
         -DCMAKE_BUILD_TYPE="$build_type" \
@@ -187,6 +196,8 @@ build_armnn()
         -DONNX_GENERATED_SOURCES="$ONNX_BUILD_TARGET" \
         -DPROTOBUF_ROOT="$protobuf_root" \
         -DBUILD_TESTS=1 \
+        -DBUILD_ACL_OPENMP=0 \
+        -DCMAKE_INSTALL_LIBDIR=lib \
         "$armnn_cmake_args" \
         "$ARMNN_SRC"
 
@@ -208,6 +219,9 @@ build_armnn()
       cp "$PROTOBUF_ANDROID_LIB_TARGET" .
     fi
   fi
+
+  cd "$ARMNN_BUILD_TARGET"
+  DESTDIR=$ARMNN_BUILD_TARGET/install cmake --install . --prefix /usr/
 
   # Copy Arm NN include directory into build output
   cd "$ARMNN_BUILD_TARGET"
@@ -248,6 +262,7 @@ build_armnn()
   echo -e "\n***** To extract tarball, run: tar -xzf armnn_$ARMNN_BUILD_DIR_NAME.tar.gz *****\n"
 
   return 0
+  )
 }
 
 download_armnn()
